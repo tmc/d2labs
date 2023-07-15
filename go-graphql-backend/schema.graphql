@@ -2,6 +2,7 @@
 
 type User @key(fields: "id") {
   id: ID!
+  githubLogin: String!
   description: String!
 }
 

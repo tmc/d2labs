@@ -7,11 +7,12 @@ package graph
 import (
 	"context"
 	"fmt"
-	"go-graphql-backend/graph/model"
+
+	model1 "githib.com/tmc/d2lab/go-graphql-server/graph/model"
 )
 
 // FindUserByID is the resolver for the findUserByID field.
-func (r *entityResolver) FindUserByID(ctx context.Context, id string) (*model.User, error) {
+func (r *entityResolver) FindUserByID(ctx context.Context, id string) (*model1.User, error) {
 	panic(fmt.Errorf("not implemented: FindUserByID - findUserByID"))
 }
 

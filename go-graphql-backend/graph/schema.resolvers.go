@@ -7,12 +7,14 @@ package graph
 import (
 	"context"
 	"fmt"
-	"go-graphql-backend/graph/model"
 	"time"
+
+	"githib.com/tmc/d2lab/go-graphql-server/graph/model"
+	model1 "githib.com/tmc/d2lab/go-graphql-server/graph/model"
 )
 
 // User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
+func (r *queryResolver) User(ctx context.Context, id string) (*model1.User, error) {
 	return &model.User{
 		ID:          id,
 		Description: "User " + id + " description here. (coming from the Go backend)",
@@ -20,7 +22,7 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 }
 
 // Me is the resolver for the me field.
-func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+func (r *queryResolver) Me(ctx context.Context) (*model1.User, error) {
 	panic(fmt.Errorf("not implemented: Me - me"))
 }
 
@@ -41,7 +43,7 @@ func (r *subscriptionResolver) TestSubscription(ctx context.Context) (<-chan str
 }
 
 // GenericCompletion is the resolver for the genericCompletion field.
-func (r *subscriptionResolver) GenericCompletion(ctx context.Context, prompt string) (<-chan *model.CompletionChunk, error) {
+func (r *subscriptionResolver) GenericCompletion(ctx context.Context, prompt string) (<-chan *model1.CompletionChunk, error) {
 	return r.genericCompletion(ctx, prompt)
 }
 

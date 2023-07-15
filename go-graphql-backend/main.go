@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"go-graphql-backend/graph"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"githib.com/tmc/d2lab/go-graphql-server/graph"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -48,7 +48,7 @@ func main() {
 
 	// GraphQL setup
 	resolver := &graph.Resolver{
-		sessionStore: sessionStore,
+		SessionStore: sessionStore,
 	}
 	s := graph.NewExecutableSchema(graph.Config{Resolvers: resolver})
 	srv := newServer(s)

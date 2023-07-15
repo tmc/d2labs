@@ -3,10 +3,10 @@ package graph
 import (
 	"context"
 	"fmt"
-	"go-graphql-backend/graph/model"
 	"strings"
 	"time"
 
+	"githib.com/tmc/d2lab/go-graphql-server/graph/model"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
 	"github.com/tmc/langchaingo/schema"

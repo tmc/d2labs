@@ -9,6 +9,7 @@ type CompletionChunk struct {
 
 type User struct {
 	ID          string `json:"id"`
+	GithubLogin string `json:"githubLogin"`
 	Description string `json:"description"`
 }
 

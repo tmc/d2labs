@@ -9,23 +9,19 @@ import (
 	"os"
 	"strings"
 
+	"github.com/google/go-github/v53/github"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/github"
+	gh "golang.org/x/oauth2/github"
 )
 
 var githubConnect *oauth2.Config
-
-type User struct {
-	GithubID string `json:"id"`
-	Email    string `json:"email"`
-}
 
 func initializeGithubOauthConfig() {
 	githubConnect = &oauth2.Config{
 		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 		Scopes:       []string{"user:email"},
-		Endpoint:     github.Endpoint,
+		Endpoint:     gh.Endpoint,
 	}
 }
 
@@ -53,7 +49,7 @@ func handleGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	var user User
+	var user *github.User
 	json.Unmarshal(content, &user)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
