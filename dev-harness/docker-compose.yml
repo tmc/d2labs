@@ -26,20 +26,7 @@ services:
     ports:
       - "4000:4000"
 
-  backend-a:
-    build:
-      context: ../graphene-backend
-    restart: always
-    ports:
-      - "8000:8000"
-    env_file: .env
-    environment:
-      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
-      OTEL_EXPORTER_OTLP_INSECURE: "true"
-    depends_on:
-      - database
-
-  backend-b:
+  backend:
     build:
       context: ../go-graphql-backend
     restart: always

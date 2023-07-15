@@ -54,7 +54,11 @@ func main() {
 
 	router.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
 	router.Handle("/graphql", otelhttp.NewHandler(srv, "graphql"))
-	// Set the context with the span from the request.
+
+	// github urls
+	router.HandleFunc("/login/github", handleGitHubLogin)
+	router.HandleFunc("/callback/github", handleGitHubCallback)
+	router.HandleFunc("/auth/github", handleGitHubAuthCode)
 
 	cors := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
