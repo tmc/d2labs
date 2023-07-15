@@ -19,6 +19,11 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 	}, nil
 }
 
+// Me is the resolver for the me field.
+func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: Me - me"))
+}
+
 // TestSubscription is the resolver for the testSubscription field.
 func (r *subscriptionResolver) TestSubscription(ctx context.Context) (<-chan string, error) {
 	ch := make(chan string, 1)

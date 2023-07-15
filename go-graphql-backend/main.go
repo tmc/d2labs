@@ -47,7 +47,9 @@ func main() {
 	)
 
 	// GraphQL setup
-	resolver := &graph.Resolver{}
+	resolver := &graph.Resolver{
+		sessionStore: sessionStore,
+	}
 	s := graph.NewExecutableSchema(graph.Config{Resolvers: resolver})
 	srv := newServer(s)
 	srv.Use(otelgqlgen.Middleware())
