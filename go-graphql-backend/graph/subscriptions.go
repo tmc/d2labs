@@ -52,11 +52,17 @@ Only output D2 diagram text.
 Here are some basic examples:
 
 ` + example("x -> y: hello world") + `
+This declares a connection between two shapes, x and y, with the label, hello world.
+
+
 ` + example(`pg: PostgreSQL
 Cloud: my cloud
 Cloud.shape: cloud
 SQLite; Cassandra
 `) + `
+This shows how to declare shapes and aliases. The first line declares a shape called PostgreSQL with the alias pg. The second line declares a shape called my cloud with the alias Cloud and the shape cloud. The third line declares two shapes, SQLite and Cassandra.
+
+
 ` + example(`Write Replica Canada <-> Write Replica Australia
 
 Read Replica <- Master
@@ -64,6 +70,8 @@ Write Replica -> Master
 
 Read Replica 1 -- Read Replica 2
 `) + `
+This shows how to declare connections. The first line declares a connection between two shapes, Write Replica Canada and Write Replica Australia. The second line declares a connection between two shapes, Read Replica and Master. The third line declares a connection between two shapes, Write Replica and Master. The fourth line declares a connection between two shapes, Read Replica 1 and Read Replica 2.
+
 ` + example(`server
 # Declares a shape inside of another shape
 server.process
@@ -74,6 +82,9 @@ im a parent.im a child
 # Since connections can also declare keys, this works too
 apartment.Bedroom.Bathroom -> office.Spare Room.Bathroom: Portal
 `) + `
+This shows how to declare shapes inside of other shapes. The first line declares a shape called server. The second line declares a shape called process inside of server. The third line declares a shape called child inside of a shape called parent. The fourth line declares a connection between two shapes, apartment.Bedroom.Bathroom and office.Spare Room.Bathroom, with the label, Portal.
+
+
 ` + example(`clouds: {
   aws: {
     load_balancer -> api
@@ -86,6 +97,7 @@ apartment.Bedroom.Bathroom -> office.Spare Room.Bathroom: Portal
   gcloud -> aws
 }
 `) + `
+This shows how to declare shapes inside of other shapes. The first line declares a shape called clouds with sub-shapes aws and gcloud. The second line declares a connection between two shapes, aws.load_balancer and aws.api. The third line declares a connection between two shapes, aws.api and aws.db. The fourth line declares a connection between two shapes, gcloud.auth and gcloud.db. The fifth line declares a connection between two shapes, gcloud and aws.
 
 Only print out the d2 diagram text.`
 
