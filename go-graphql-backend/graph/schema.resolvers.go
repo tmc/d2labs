@@ -7,23 +7,28 @@ package graph
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"githib.com/tmc/d2lab/go-graphql-server/graph/model"
-	model1 "githib.com/tmc/d2lab/go-graphql-server/graph/model"
 )
 
 // User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context, id string) (*model1.User, error) {
+func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
 	return &model.User{
 		ID:          id,
-		Description: "User " + id + " description here. (coming from the Go backend)",
+		Description: "",
 	}, nil
 }
 
 // Me is the resolver for the me field.
-func (r *queryResolver) Me(ctx context.Context) (*model1.User, error) {
-	panic(fmt.Errorf("not implemented: Me - me"))
+func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+	s, _ := r.SessionStore.Get(reqfromctx(ctx), "s")
+	ghl, _ := s.Values["github-login"].(string)
+	return &model.User{
+		GithubLogin: ghl,
+		Description: "",
+	}, nil
 }
 
 // TestSubscription is the resolver for the testSubscription field.
@@ -43,8 +48,13 @@ func (r *subscriptionResolver) TestSubscription(ctx context.Context) (<-chan str
 }
 
 // GenericCompletion is the resolver for the genericCompletion field.
-func (r *subscriptionResolver) GenericCompletion(ctx context.Context, prompt string) (<-chan *model1.CompletionChunk, error) {
+func (r *subscriptionResolver) GenericCompletion(ctx context.Context, prompt string) (<-chan *model.CompletionChunk, error) {
 	return r.genericCompletion(ctx, prompt)
+}
+
+// DiagramCompletion is the resolver for the diagramCompletion field.
+func (r *subscriptionResolver) DiagramCompletion(ctx context.Context, prompt string) (<-chan *model.CompletionChunk, error) {
+	return r.diagramCompletion(ctx, prompt)
 }
 
 // Query returns QueryResolver implementation.
@@ -55,3 +65,13 @@ func (r *Resolver) Subscription() SubscriptionResolver { return &subscriptionRes
 
 type queryResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func reqfromctx(ctx context.Context) *http.Request {
+	return ctx.Value("request").(*http.Request)
+}

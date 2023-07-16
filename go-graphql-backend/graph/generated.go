@@ -64,6 +64,7 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
+		DiagramCompletion func(childComplexity int, prompt string) int
 		GenericCompletion func(childComplexity int, prompt string) int
 		TestSubscription  func(childComplexity int) int
 	}
@@ -89,6 +90,7 @@ type QueryResolver interface {
 type SubscriptionResolver interface {
 	TestSubscription(ctx context.Context) (<-chan string, error)
 	GenericCompletion(ctx context.Context, prompt string) (<-chan *model.CompletionChunk, error)
+	DiagramCompletion(ctx context.Context, prompt string) (<-chan *model.CompletionChunk, error)
 }
 
 type executableSchema struct {
@@ -169,6 +171,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.__resolve_entities(childComplexity, args["representations"].([]map[string]interface{})), true
+
+	case "Subscription.diagramCompletion":
+		if e.complexity.Subscription.DiagramCompletion == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_diagramCompletion_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.DiagramCompletion(childComplexity, args["prompt"].(string)), true
 
 	case "Subscription.genericCompletion":
 		if e.complexity.Subscription.GenericCompletion == nil {
@@ -302,6 +316,7 @@ type Query {
 type Subscription {
   testSubscription: String!
   genericCompletion(prompt: String!): CompletionChunk
+  diagramCompletion(prompt: String!): CompletionChunk
 }
 
 type CompletionChunk {
@@ -407,6 +422,21 @@ func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs m
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_diagramCompletion_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["prompt"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("prompt"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["prompt"] = arg0
 	return args, nil
 }
 
@@ -1079,6 +1109,78 @@ func (ec *executionContext) fieldContext_Subscription_genericCompletion(ctx cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Subscription_genericCompletion_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_diagramCompletion(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_diagramCompletion(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().DiagramCompletion(rctx, fc.Args["prompt"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.CompletionChunk):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalOCompletionChunk2ᚖgithibᚗcomᚋtmcᚋd2labᚋgoᚑgraphqlᚑserverᚋgraphᚋmodelᚐCompletionChunk(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_diagramCompletion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "text":
+				return ec.fieldContext_CompletionChunk_text(ctx, field)
+			case "isLast":
+				return ec.fieldContext_CompletionChunk_isLast(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CompletionChunk", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_diagramCompletion_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -3288,6 +3390,8 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 		return ec._Subscription_testSubscription(ctx, fields[0])
 	case "genericCompletion":
 		return ec._Subscription_genericCompletion(ctx, fields[0])
+	case "diagramCompletion":
+		return ec._Subscription_diagramCompletion(ctx, fields[0])
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}

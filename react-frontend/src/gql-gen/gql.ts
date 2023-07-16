@@ -13,9 +13,11 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-    "\n  subscription GenericSubscription($prompt: String!) {\n    genericCompletion(prompt: $prompt) {\n      text\n      isLast\n    }\n}\n": types.GenericSubscriptionDocument,
-    "\n  query GetUser($userId: ID!) {\n    user(id: $userId) {\n      id\n      username\n      description\n    }\n  }\n": types.GetUserDocument,
+    "\n  subscription DiagramSubscription($prompt: String!) {\n    diagramCompletion(prompt: $prompt) {\n      text\n      isLast\n    }\n}\n": types.DiagramSubscriptionDocument,
+    "\n  query GetUserX($userId: ID!) {\n    user(id: $userId) {\n      id\n      description\n    }\n  }\n": types.GetUserXDocument,
     "\n  subscription TestSubScription {\n    testSubscription\n  }\n": types.TestSubScriptionDocument,
+    "\n  subscription GenericSubscription($prompt: String!) {\n    genericCompletion(prompt: $prompt) {\n      text\n      isLast\n    }\n}\n": types.GenericSubscriptionDocument,
+    "\n  query GetUser($userId: ID!) {\n    user(id: $userId) {\n      id\n      description\n    }\n  }\n": types.GetUserDocument,
 };
 
 /**
@@ -35,15 +37,23 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  subscription GenericSubscription($prompt: String!) {\n    genericCompletion(prompt: $prompt) {\n      text\n      isLast\n    }\n}\n"): (typeof documents)["\n  subscription GenericSubscription($prompt: String!) {\n    genericCompletion(prompt: $prompt) {\n      text\n      isLast\n    }\n}\n"];
+export function graphql(source: "\n  subscription DiagramSubscription($prompt: String!) {\n    diagramCompletion(prompt: $prompt) {\n      text\n      isLast\n    }\n}\n"): (typeof documents)["\n  subscription DiagramSubscription($prompt: String!) {\n    diagramCompletion(prompt: $prompt) {\n      text\n      isLast\n    }\n}\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query GetUser($userId: ID!) {\n    user(id: $userId) {\n      id\n      username\n      description\n    }\n  }\n"): (typeof documents)["\n  query GetUser($userId: ID!) {\n    user(id: $userId) {\n      id\n      username\n      description\n    }\n  }\n"];
+export function graphql(source: "\n  query GetUserX($userId: ID!) {\n    user(id: $userId) {\n      id\n      description\n    }\n  }\n"): (typeof documents)["\n  query GetUserX($userId: ID!) {\n    user(id: $userId) {\n      id\n      description\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  subscription TestSubScription {\n    testSubscription\n  }\n"): (typeof documents)["\n  subscription TestSubScription {\n    testSubscription\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  subscription GenericSubscription($prompt: String!) {\n    genericCompletion(prompt: $prompt) {\n      text\n      isLast\n    }\n}\n"): (typeof documents)["\n  subscription GenericSubscription($prompt: String!) {\n    genericCompletion(prompt: $prompt) {\n      text\n      isLast\n    }\n}\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetUser($userId: ID!) {\n    user(id: $userId) {\n      id\n      description\n    }\n  }\n"): (typeof documents)["\n  query GetUser($userId: ID!) {\n    user(id: $userId) {\n      id\n      description\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

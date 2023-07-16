@@ -17,6 +17,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/rs/cors"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -28,6 +29,13 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+	// load dotenv
+	if err := godotenv.Load(); err != nil {
+		log.Println("issue loading .env file:", err)
+	}
+
+	// init github oauth
+	initializeGithubOauthConfig()
 
 	// Set up tracing.
 	shutdown, err := initOtelProvider()
@@ -42,7 +50,7 @@ func main() {
 	router.Use(
 		middleware.RequestID,
 		middleware.RealIP,
-		middleware.Recoverer,
+		//middleware.Recoverer,
 		middleware.Logger,
 	)
 
@@ -55,8 +63,10 @@ func main() {
 	srv.Use(otelgqlgen.Middleware())
 
 	router.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
-	router.Handle("/graphql", otelhttp.NewHandler(srv, "graphql"))
+	router.Handle("/graphql", reqctx(otelhttp.NewHandler(srv, "graphql")))
 
+	router.HandleFunc("/render.png", handleRender)
+	router.HandleFunc("/render.svg", handleRender)
 	// github urls
 	router.HandleFunc("/login/github", handleGitHubLogin)
 	router.HandleFunc("/callback/github", handleGitHubCallback)
@@ -99,4 +109,14 @@ func newServer(es graphql.ExecutableSchema) *handler.Server {
 	})
 
 	return srv
+}
+
+// reqctx puts the http request into the context
+func reqctx(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, "request", r)
+		r = r.WithContext(ctx)
+		h.ServeHTTP(w, r)
+	})
 }

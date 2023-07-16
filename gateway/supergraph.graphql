@@ -51,6 +51,7 @@ type Query
   @join__type(graph: BACKEND)
 {
   user(id: ID!): User
+  me: User
 }
 
 type Subscription
@@ -58,11 +59,13 @@ type Subscription
 {
   testSubscription: String!
   genericCompletion(prompt: String!): CompletionChunk
+  diagramCompletion(prompt: String!): CompletionChunk
 }
 
 type User
   @join__type(graph: BACKEND, key: "id")
 {
   id: ID!
+  githubLogin: String!
   description: String!
 }

@@ -23,6 +23,8 @@ func initializeGithubOauthConfig() {
 		Scopes:       []string{"user:email"},
 		Endpoint:     gh.Endpoint,
 	}
+	fmt.Println("githubConnect!", githubConnect)
+	fmt.Println("githubConnect!", githubConnect.ClientID)
 }
 
 func handleGitHubLogin(w http.ResponseWriter, r *http.Request) {
