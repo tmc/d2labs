@@ -47,21 +47,17 @@ func example(s string) string {
 
 var tripleBacktick = "```"
 var diagramSystemPrompt = `
-Only output D2 diagram text.
+You are an architecture diagramming assistant. You are helping a software engineer create a diagram of their system. The engineer will provide you with a list of components.
+
+You will outout the D2 language.
+
+Here is the core syntax of the D2 Language:
+D2 provides four connection operators: -> (forward connector), <- (backward connector), -- (straight line), and <-> (both sides connector). 
 
 Here are some basic examples:
 
 ` + example("x -> y: hello world") + `
 This declares a connection between two shapes, x and y, with the label, hello world.
-
-
-` + example(`pg: PostgreSQL
-Cloud: my cloud
-Cloud.shape: cloud
-SQLite; Cassandra
-`) + `
-This shows how to declare shapes and aliases. The first line declares a shape called PostgreSQL with the alias pg. The second line declares a shape called my cloud with the alias Cloud and the shape cloud. The third line declares two shapes, SQLite and Cassandra.
-
 
 ` + example(`Write Replica Canada <-> Write Replica Australia
 
@@ -99,21 +95,76 @@ This shows how to declare shapes inside of other shapes. The first line declares
 `) + `
 This shows how to declare shapes inside of other shapes. The first line declares a shape called clouds with sub-shapes aws and gcloud. The second line declares a connection between two shapes, aws.load_balancer and aws.api. The third line declares a connection between two shapes, aws.api and aws.db. The fourth line declares a connection between two shapes, gcloud.auth and gcloud.db. The fifth line declares a connection between two shapes, gcloud and aws.
 
-Only print out the d2 diagram text.`
+Only print out the d2 diagram text. Do not print out "` + "```d2" + `" or "` + "```" + `" around your response.`
+
+var (
+	fewshotInputs = []string{
+		"A typical 3 tier web architecture.",
+		"User inputs the description of the diagram desired using the English language. This description will be processed by GPT-4. GPT-4 is trained (externally) on D2 documentation. GPT will generate the D2 code and feed it back into the User Interface. The user interface will generate the diagram rendering in real time using graphql subscription, as well as show the D2 code to the user.",
+	}
+	fewshotOutputs = []string{
+		`Client: {
+    label: 'Client'
+}
+WebServer: {
+    label: 'Web Server'
+	icon: 'https://icons.terrastruct.com/essentials%2F112-server.svg'
+}
+DatabaseServer: {
+    label: 'Database Server'
+    icon: 'https://icons.terrastruct.com/essentials%2F119-database.svg'
+}
+Client -> WebServer: 'Request'
+WebServer -> DatabaseServer: 'Query data'
+DatabaseServer -> WebServer: 'Response data'
+WebServer -> Client: 'Serve requested data'`,
+		`UserInterface: {
+shape: rectangle
+label: 'User Interface'
+}
+
+GPT4: {
+shape: rectangle
+label: 'GPT-4'
+}
+
+D2_Documentation: {
+shape: rectangle
+label: 'D2 Documentation'
+}
+
+GraphQL: {
+shape: rectangle
+label: 'Rendering Server'
+}
+
+UserInterface -> GPT4: 'English description of diagram'
+D2_Documentation -> GPT4: 'Train on D2 documentation'
+GPT4 -> GraphQL: 'Generated D2 code'
+GraphQL -> UserInterface: 'GraphQL real-time rendering'`,
+	}
+)
 
 func (r *subscriptionResolver) diagramCompletion(ctx context.Context, prompt string) (<-chan *model.CompletionChunk, error) {
-	llm, err := openai.New()
+	llm, err := openai.New(openai.WithModel("gpt-4"))
 	if err != nil {
 		fmt.Println("Error creating openai client", err)
 		return r.fakeGenericCompletion(ctx, prompt)
 	}
 	ch := make(chan *model.CompletionChunk, 1)
+
+	messages := []schema.ChatMessage{
+		schema.SystemChatMessage{Text: diagramSystemPrompt},
+	}
+	for i, _ := range fewshotInputs {
+		messages = append(messages, schema.HumanChatMessage{Text: fewshotInputs[i]})
+		messages = append(messages, schema.AIChatMessage{Text: fewshotOutputs[i]})
+	}
+	messages = append(messages, schema.HumanChatMessage{Text: prompt + " (be concise)"})
+	fmt.Println("messages:", messages)
 	go func() {
 		defer close(ch)
-		_, err := llm.Chat(ctx, []schema.ChatMessage{
-			schema.SystemChatMessage{Text: diagramSystemPrompt},
-			schema.HumanChatMessage{Text: prompt + " (be concise)"},
-		}, llms.WithStreamingFunc(func(ctx context.Context, chunk []byte) error {
+		_, err := llm.Chat(ctx, messages, llms.WithModel("gpt-4"), llms.WithStreamingFunc(func(ctx context.Context, chunk []byte) error {
 			ch <- &model.CompletionChunk{
 				Text: string(chunk),
 			}

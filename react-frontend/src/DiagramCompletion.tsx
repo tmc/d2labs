@@ -13,9 +13,14 @@ const diagramCompletionSubscription = graphql(`
 }
 `)
 
+const SAMPLES = [
+  "A typical 3 tier web architecture.",
+  "A phylogenetic tree of lions including the genuses",
+]
+
 function DiagramCompletion() {
   // we'll run/restart the subscription when the prompt changes (with a debounce).
-  const [prompt, setPrompt] = useState("Diagram a redis-based chat app.");
+  const [prompt, setPrompt] = useState("");
   const [debouncedPrompt, setDebouncedPrompt] = useState(prompt);
   React.useEffect(() => {
     const timeout = setTimeout(() => {
@@ -39,22 +44,36 @@ function DiagramCompletion() {
      setResult(result + data.data.data?.diagramCompletion?.text);
     },
   });
-  // base64 encoded version of the result:
-  const srcb64 = btoa(result);
+
+  // base64 encoded version of the result (debcounced)
+  // const srcb64 = btoa(result);
+  const [srcb64, setSrcb64] = useState("");
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSrcb64(btoa(result));
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [result]);
+
 
   // use tailwind to render a basic input box and a text box below it that shows results.
   return (
     <div style={{fontSize: 'small'}}>
-      d2labs
-      <pre>
-        loading: {loading ? 'true' : 'false'}<br/>
-      </pre>
+      <h1>d2labs: AI-assisted Architecture Diagramming</h1>
+      <div>
+        Sample diagrams:
+        <ul>
+          {SAMPLES.map((s) => <li><a href="#" onClick={(e) => {setPrompt((e.target as HTMLAnchorElement).text)}}>{s}</a></li>)}
+        </ul> 
+      </div>
+      <div>
       <input type="text" value={prompt} onChange={(e) => setPrompt(e.target.value)}
         style={{width: '400px', height: '30px'}}
       />
+</div>
       <br/>
       <div>
-        <textarea readOnly value={result} style={{width: '400px', height: '200px'}} />
+        <textarea value={result} style={{width: '400px', height: '200px'}} />
       </div>
         <img 
         style={{
