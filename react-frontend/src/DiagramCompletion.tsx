@@ -13,14 +13,23 @@ const diagramCompletionSubscription = graphql(`
 }
 `)
 
+// set render url based on node env
+const RENDER_URL = process.env.NODE_ENV === 'production' ? '/render.png' : 'http://localhost:8080/render.png'
+
 const SAMPLES = [
   "A typical 3 tier web architecture.",
   "A phylogenetic tree of lions including the genuses",
+  "A typical microservice architecture",
+  "A typical 3 tier web architecture with a load balancer",
+  "A typical 3 tier web architecture with a load balancer and a database and a cache and a message queue",
+  "A typical 3 tier web architecture with a load balancer and a database and a cache and a message queue and a search engine and a monitoring system and a logging system",
+  "A typical 3 tier web architecture with a load balancer and a database and a cache and a message queue and a search engine and a monitoring system and a logging system and a container orchestration system",
+  "A typical 3 tier web architecture with a load balancer and a database and a cache and a message queue and a search engine and a monitoring system and a logging system and a container orchestration system and a container registry",
 ]
 
 function DiagramCompletion() {
   // we'll run/restart the subscription when the prompt changes (with a debounce).
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState("A typical 3 tier web architecture.");
   const [debouncedPrompt, setDebouncedPrompt] = useState(prompt);
   React.useEffect(() => {
     const timeout = setTimeout(() => {
@@ -67,8 +76,8 @@ function DiagramCompletion() {
         </ul> 
       </div>
       <div>
-      <input type="text" value={prompt} onChange={(e) => setPrompt(e.target.value)}
-        style={{width: '400px', height: '30px'}}
+      <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)}
+        style={{width: '400px', height: '80px'}}
       />
 </div>
       <br/>
@@ -79,7 +88,7 @@ function DiagramCompletion() {
         style={{
           width: '400px', 
         }}
-        src={`/render.png?src=${encodeURIComponent(srcb64)}`} alt='render' />
+        src={`${RENDER_URL}?src=${encodeURIComponent(srcb64)}`} alt='render' />
     </div>
 
   );

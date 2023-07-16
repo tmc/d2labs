@@ -98,12 +98,10 @@ This shows how to declare shapes inside of other shapes. The first line declares
 Only print out the d2 diagram text. Do not print out "` + "```d2" + `" or "` + "```" + `" around your response.`
 
 var (
-	fewshotInputs = []string{
-		"A typical 3 tier web architecture.",
-		"User inputs the description of the diagram desired using the English language. This description will be processed by GPT-4. GPT-4 is trained (externally) on D2 documentation. GPT will generate the D2 code and feed it back into the User Interface. The user interface will generate the diagram rendering in real time using graphql subscription, as well as show the D2 code to the user.",
-	}
-	fewshotOutputs = []string{
-		`Client: {
+	fewshots = [][]string{
+		[]string{
+			"A typical 3 tier web architecture.",
+			`Client: {
     label: 'Client'
 }
 WebServer: {
@@ -118,7 +116,25 @@ Client -> WebServer: 'Request'
 WebServer -> DatabaseServer: 'Query data'
 DatabaseServer -> WebServer: 'Response data'
 WebServer -> Client: 'Serve requested data'`,
-		`System: {
+		},
+		[]string{
+			"A phylogenetic tree of salamanders",
+			`Salamanders: {
+  Ambystomatidae
+  Plethodontidae
+  Salamandridae
+  Cryptobranchidae
+  Hynobiidae
+
+  Ambystomatidae -- Plethodontidae
+  Plethodontidae -- Salamandridae 
+  Salamandridae -- Cryptobranchidae
+  Cryptobranchidae -- Hynobiidae
+}`,
+		},
+		[]string{
+			"User inputs the description of the diagram desired using the English language. This description will be processed by GPT-4. GPT-4 is trained (externally) on D2 documentation. GPT will generate the D2 code and feed it back into the User Interface. The user interface will generate the diagram rendering in real time using graphql subscription, as well as show the D2 code to the user.",
+			`System: {
   UserInterface: {
     shape: rectangle
     label: 'User Interface'
@@ -144,6 +160,7 @@ WebServer -> Client: 'Serve requested data'`,
   GPT4 -> GraphQL: 'Generated D2 code'
   GraphQL -> UserInterface: 'GraphQL real-time rendering'
 }`,
+		},
 	}
 )
 
@@ -158,12 +175,11 @@ func (r *subscriptionResolver) diagramCompletion(ctx context.Context, prompt str
 	messages := []schema.ChatMessage{
 		schema.SystemChatMessage{Text: diagramSystemPrompt},
 	}
-	for i, _ := range fewshotInputs {
-		messages = append(messages, schema.HumanChatMessage{Text: fewshotInputs[i]})
-		messages = append(messages, schema.AIChatMessage{Text: fewshotOutputs[i]})
+	for _, fs := range fewshots {
+		messages = append(messages, schema.HumanChatMessage{Text: fs[0]})
+		messages = append(messages, schema.AIChatMessage{Text: fs[1]})
 	}
-	messages = append(messages, schema.HumanChatMessage{Text: prompt + " (be concise)"})
-	fmt.Println("messages:", messages)
+	messages = append(messages, schema.HumanChatMessage{Text: prompt})
 	go func() {
 		defer close(ch)
 		_, err := llm.Chat(ctx, messages, llms.WithModel("gpt-4"), llms.WithStreamingFunc(func(ctx context.Context, chunk []byte) error {

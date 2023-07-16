@@ -4,9 +4,13 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 
-const BASE_GRAPHQL_URL = 'http://localhost:4000/'
-//const BASE_GRAPHQL_SUBSCRIPTIONS_URL = 'ws://localhost:8080/graphql'
-const BASE_GRAPHQL_SUBSCRIPTIONS_URL = 'wss:///graphql'
+
+var wsURL = new URL('/graphql', window?.location?.href);
+wsURL.protocol = wsURL.protocol.replace('http', 'ws');
+
+const BASE_GRAPHQL_URL = process.env.NODE_ENV === 'production' ? '/graphql' : 'http://localhost:4000/';
+const BASE_GRAPHQL_SUBSCRIPTIONS_URL = process.env.NODE_ENV === 'production' ? wsURL.href : 'ws://localhost:8080/graphql';
+
 
 const httpLink = new HttpLink({
   uri: BASE_GRAPHQL_URL,
@@ -33,7 +37,9 @@ const splitLink = split(
   httpLink,
 );
 
-export const client = new ApolloClient({
-  link: splitLink,
+let clientArgs: any = {
   cache: new InMemoryCache(),
-});
+  link: splitLink,
+};
+
+export const client = new ApolloClient(clientArgs);

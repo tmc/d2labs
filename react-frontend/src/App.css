@@ -15,6 +15,9 @@
 li a {
   color: white;
 }
+ul {
+  text-align: left;
+}
 .App-header {
   background-color: #282c34;
   display: flex;

@@ -25,7 +25,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
-//go:embed frontend-build
+//go:embed frontend-build/**
 var assetsFS embed.FS
 
 func main() {

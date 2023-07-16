@@ -1,10 +1,14 @@
 import React from 'react';
 import './App.css';
 
-// import ExampleComponent from './ExampleComponent'
-// import ExampleCompletion from './ExampleCompletion'
-import DiagramPrompt from './DiagramPrompt'
+import * as FullStory from '@fullstory/browser';
+
 import DiagramCompletion from './DiagramCompletion'
+
+FullStory.init({
+  orgId: process.env.REACT_APP_FULLSTORY_ORG_ID || 'o-1NMDBK-na1',
+  devMode: process.env.NODE_ENV === 'development',
+});
 
 function App() {
   return (
