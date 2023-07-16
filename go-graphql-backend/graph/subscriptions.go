@@ -118,30 +118,32 @@ Client -> WebServer: 'Request'
 WebServer -> DatabaseServer: 'Query data'
 DatabaseServer -> WebServer: 'Response data'
 WebServer -> Client: 'Serve requested data'`,
-		`UserInterface: {
-shape: rectangle
-label: 'User Interface'
-}
+		`System: {
+  UserInterface: {
+    shape: rectangle
+    label: 'User Interface'
+  }
 
-GPT4: {
-shape: rectangle
-label: 'GPT-4'
-}
+  GPT4: {
+    shape: rectangle
+    label: 'GPT-4'
+  }
 
-D2_Documentation: {
-shape: rectangle
-label: 'D2 Documentation'
-}
+  D2_Documentation: {
+    shape: rectangle
+    label: 'D2 Documentation'
+  }
 
-GraphQL: {
-shape: rectangle
-label: 'Rendering Server'
-}
+  GraphQL: {
+    shape: rectangle
+    label: 'Rendering Server'
+  }
 
-UserInterface -> GPT4: 'English description of diagram'
-D2_Documentation -> GPT4: 'Train on D2 documentation'
-GPT4 -> GraphQL: 'Generated D2 code'
-GraphQL -> UserInterface: 'GraphQL real-time rendering'`,
+  UserInterface -> GPT4: 'English description of diagram'
+  D2_Documentation -> GPT4: 'Train on D2 documentation'
+  GPT4 -> GraphQL: 'Generated D2 code'
+  GraphQL -> UserInterface: 'GraphQL real-time rendering'
+}`,
 	}
 )
 

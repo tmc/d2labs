@@ -79,7 +79,7 @@ function DiagramCompletion() {
         style={{
           width: '400px', 
         }}
-        src={`http://localhost:8080/render.png?src=${encodeURIComponent(srcb64)}`} alt='render' />
+        src={`/render.png?src=${encodeURIComponent(srcb64)}`} alt='render' />
     </div>
 
   );

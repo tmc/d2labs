@@ -39,7 +39,7 @@ test:
 # Docker rules
 docker-build:
 	@echo "Building docker image..."
-	docker build -t go-graphql-backend .
+	docker build --platform linux/amd64 -t go-graphql-backend .
 
 docker-run:
 	@echo "Running container..."

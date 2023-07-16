@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"io/fs"
+
+	"embed"
 	"log"
 	"net/http"
 	"os"
@@ -13,7 +16,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/websocket"
@@ -22,6 +24,9 @@ import (
 	"github.com/rs/cors"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
+
+//go:embed frontend-build
+var assetsFS embed.FS
 
 func main() {
 	ctx := context.Background()
@@ -62,7 +67,11 @@ func main() {
 	srv := newServer(s)
 	srv.Use(otelgqlgen.Middleware())
 
-	router.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
+	assets, err := fs.Sub(assetsFS, "frontend-build")
+	if err != nil {
+		log.Println(err)
+	}
+
 	router.Handle("/graphql", reqctx(otelhttp.NewHandler(srv, "graphql")))
 
 	router.HandleFunc("/render.png", handleRender)
@@ -82,6 +91,11 @@ func main() {
 	})
 
 	log.Printf("Listening on localhost:%s", port)
+	//log.Fatal(http.ListenAndServe(":"+port, http.FileServer(http.FS(assets))))
+
+	router.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		http.FileServer(http.FS(assets)).ServeHTTP(w, r)
+	})
 	log.Fatal(http.ListenAndServe(":"+port, cors.Handler(router)))
 }
 
