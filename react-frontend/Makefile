@@ -9,7 +9,7 @@ clean:
 	rm -rf build
 
 run:
-	npm start
+	npm run dev
 
 watch-codegen:
 	npm run graphql-codegen-watch

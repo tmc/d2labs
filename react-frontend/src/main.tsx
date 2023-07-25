@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ApolloProvider } from '@apollo/client';
-import './index.css';
+import './styles.css';
 import reportWebVitals from './reportWebVitals';
 
 import { RouterProvider } from "react-router-dom";

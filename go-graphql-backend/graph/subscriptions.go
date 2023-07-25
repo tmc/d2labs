@@ -180,6 +180,7 @@ func (r *subscriptionResolver) diagramCompletion(ctx context.Context, prompt str
 		messages = append(messages, schema.AIChatMessage{Text: fs[1]})
 	}
 	messages = append(messages, schema.HumanChatMessage{Text: prompt})
+
 	go func() {
 		defer close(ch)
 		_, err := llm.Chat(ctx, messages, llms.WithModel("gpt-4"), llms.WithStreamingFunc(func(ctx context.Context, chunk []byte) error {

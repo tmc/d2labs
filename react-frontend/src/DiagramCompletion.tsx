@@ -42,7 +42,7 @@ function DiagramCompletion() {
   // result accumulator:
   const [result, setResult] = useState("");
 
-  const { loading } = useSubscription(diagramCompletionSubscription, {
+  useSubscription(diagramCompletionSubscription, {
     variables: {
       prompt: debouncedPrompt,
     },
@@ -50,7 +50,7 @@ function DiagramCompletion() {
       console.error(err)
     },
    onData: (data) => {
-     setResult(result + data.data.data?.diagramCompletion?.text);
+     setResult(result + (data.data.data?.diagramCompletion?.text || ""));
     },
   });
 

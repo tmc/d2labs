@@ -39,7 +39,8 @@ func renderSvg(w http.ResponseWriter, contents string) error {
 	})
 	out, _ := d2svg.Render(diagram, &d2svg.RenderOpts{
 		Pad:     d2svg.DEFAULT_PADDING,
-		ThemeID: d2themescatalog.GrapeSoda.ID,
+		Sketch:  true,
+		ThemeID: d2themescatalog.EvergladeGreen.ID,
 	})
 	w.Header().Set("Content-Type", "image/svg+xml")
 	w.Write(out)
